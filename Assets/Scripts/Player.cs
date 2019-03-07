@@ -14,33 +14,41 @@ public class Player : MonoBehaviour
 		Left,
 		Right
 	}
-	private EDir _dir;
-	private EDir _lastDir;
 
 	private delegate bool KeyDownBool(KeyCode code);
 	KeyDownBool keyDown = Input.GetKeyDown;
 
 	[Header("Set in Inspector")]
-	public float speed = 1f;
 	public float invokeTime = 0.100f;
 	public GameObject segmentPrefab;
+	public float interpolationSpeed = 10.0f;
+	public float timeBetweenMoves = 0.3333f;
 
 	[Header("Set Dynamically")]
 	private Transform _playerTransform;
 	private List<Transform> _segments;
+	private EDir _dir;
+	private EDir _lastDir;
+	private float _timestamp;
+	private Vector3 _desiredPosition;
 
 	private void Start()
 	{
 		_segments = new List<Transform>();
 		_playerTransform = gameObject.transform;
-		Invoke("Move", invokeTime);
+		_desiredPosition = _playerTransform.position;
+		//Invoke("Move", invokeTime);
 	}
 
 	private void Update()
 	{
 		GetPlayerInput();
+		Move();
+		_playerTransform.position = Vector3.Lerp(_playerTransform.position, _desiredPosition,
+			interpolationSpeed * Time.deltaTime);
 	}
 
+	// COLLISION
 	private void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.CompareTag("Pickup"))
@@ -69,68 +77,81 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	// MOVEMENT
+	// TODO Fix tail movement
 	private void Move()
 	{
-		MoveSegments();
-		switch (_dir)
+		if (Time.time >= _timestamp)
 		{
-			case EDir.None:
-				break;
-
-			case EDir.Up:
-				if (_lastDir == EDir.Down)
-				{
-					_playerTransform.Translate(Vector3.down);
+			MoveSegments();
+			switch (_dir)
+			{
+				case EDir.None:
 					break;
-				}
-				_playerTransform.Translate(Vector3.up);
-				_lastDir = EDir.Up;
-				break;
 
-			case EDir.Down:
-				if (_lastDir == EDir.Up)
-				{
-					_playerTransform.Translate(Vector3.up);
+				case EDir.Up:
+					if (_lastDir == EDir.Down)
+					{
+						_desiredPosition += Vector3.down;
+						break;
+					}
+					_desiredPosition += Vector3.up;
+					_lastDir = EDir.Up;
 					break;
-				}
-				_playerTransform.Translate(Vector3.down);
-				_lastDir = EDir.Down;
-				break;
 
-			case EDir.Left:
-				if (_lastDir == EDir.Right)
-				{
-					_playerTransform.Translate(Vector3.right);
+				case EDir.Down:
+					if (_lastDir == EDir.Up)
+					{
+						_desiredPosition += Vector3.up;
+						break;
+					}
+					_desiredPosition += Vector3.down;
+					_lastDir = EDir.Down;
 					break;
-				}
-				_playerTransform.Translate(Vector3.left);
-				_lastDir = EDir.Left;
-				break;
 
-			case EDir.Right:
-				if (_lastDir == EDir.Left)
-				{
-					_playerTransform.Translate(Vector3.left);
+				case EDir.Left:
+					if (_lastDir == EDir.Right)
+					{
+						_desiredPosition += Vector3.right;
+						break;
+					}
+					_desiredPosition += Vector3.left;
+					_lastDir = EDir.Left;
 					break;
-				}
-				_playerTransform.Translate(Vector3.right);
-				_lastDir = EDir.Right;
-				break;
+
+				case EDir.Right:
+					if (_lastDir == EDir.Left)
+					{
+						_desiredPosition += Vector3.left;
+						break;
+					}
+					_desiredPosition += Vector3.right;
+					_lastDir = EDir.Right;
+					break;
+			}
+
+			_timestamp = Time.time + timeBetweenMoves;
 		}
 
-		Invoke("Move", invokeTime);
+		//Invoke("Move", invokeTime);
 
 		void MoveSegments()
 		{
 			if (_segments.Count > 0)
 			{
+				_segments.Last().gameObject.GetComponent<Collider2D>().enabled = false;
 				_segments.Last().position = _playerTransform.position;
+				if (_segments.Count > 1)
+				{
+					_segments[0].gameObject.GetComponent<Collider2D>().enabled = true;
+				}
 				_segments.Insert(0, _segments.Last());
 				_segments.RemoveAt(_segments.Count - 1);
 			}
 		}
 	}
 
+	// INPUT
 	private void GetPlayerInput()
 	{
 		if (keyDown(KeyCode.S) || keyDown(KeyCode.DownArrow))
@@ -154,8 +175,10 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	// GAME LOGIC
 	private void ResetPlayer()
 	{
+		_desiredPosition = new Vector3(25, 25,0);
 		_playerTransform.position = new Vector3(25, 25,0);
 		_dir = EDir.None;
 		_lastDir = EDir.None;
