@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 	public int score;
 	public int bestScore;
 
+
 	private void Awake()
 	{
 		if (S == null)

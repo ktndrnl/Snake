@@ -1180,6 +1180,8 @@ GameObject:
   - component: {fileID: 2130581981}
   - component: {fileID: 2130581980}
   - component: {fileID: 2130581979}
+  - component: {fileID: 2130581985}
+  - component: {fileID: 2130581984}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1199,10 +1201,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc81acc964b649542beb19fb87bb9171, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
   invokeTime: 0.08
   segmentPrefab: {fileID: 4463400675477841714, guid: bd7563c8011dafe4b964db997b80a8e9,
     type: 3}
+  interpolationSpeed: 30
+  timeBetweenMoves: 0.05
 --- !u!50 &2130581980
 Rigidbody2D:
   serializedVersion: 4
@@ -1312,3 +1315,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2130581984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130581978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9909e254461004c46837951c5b9eec18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeBetweenMoves: 0.066
+  interpolationSpeed: 20
+--- !u!114 &2130581985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130581978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3661fe5c7c6ec4080fb70db12550ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
